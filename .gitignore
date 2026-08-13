@@ -1,0 +1,29 @@
+# JavaScript
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Local configuration and data
+.env
+.env.local
+*.db
+*.sqlite
+*.sqlite3
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+
+# Test output
+coverage/
+playwright-report/
+test-results/
