@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #131f24;
+  --bg-secondary: #1e2a32;
+  --card: #131f24;
+  --border: #37464f;
+  --border-light: #3f4c55;
+  --text: #f1f7fb;
+  --text-muted: #52656d;
+  --text-link: #49c0f8;
+  --green: #58cc02;
+  --green-dark: #46a302;
+  --blue: #1cb0f6;
+  --blue-dark: #1899d6;
+  --gold: #ffc800;
+  --orange: #ff9600;
+  --heart: #ff4b4b;
+  --gem: #1cb0f6;
+  --locked: #37464f;
+  --locked-icon: #52656d;
+  --purple: #ce82ff;
+  --purple-dark: #a568cc;
+  --nav-active: rgba(28, 176, 246, 0.15);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-link: var(--text-link);
+  --color-green: var(--green);
+  --color-green-dark: var(--green-dark);
+  --color-blue: var(--blue);
+  --color-blue-dark: var(--blue-dark);
+  --color-gold: var(--gold);
+  --color-orange: var(--orange);
+  --color-heart: var(--heart);
+  --color-gem: var(--gem);
+  --color-locked: var(--locked);
+  --color-locked-icon: var(--locked-icon);
+  --color-purple: var(--purple);
+  --color-purple-dark: var(--purple-dark);
+  --color-nav-active: var(--nav-active);
+  --font-sans: var(--font-nunito);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: clip;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-nunito), "Arial Rounded MT Bold", Arial, sans-serif;
+  font-weight: 700;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(28, 176, 246, 0.35);
+  color: var(--text);
+}
+
+@keyframes tooltip-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes mascot-tilt {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes mascot-wing {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-11deg);
+  }
+}
+
+@keyframes mascot-blink {
+  0%,
+  87%,
+  100% {
+    transform: scaleY(0);
+  }
+  90%,
+  96% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes node-active-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes node-complete-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes node-check-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+}
+
+.animate-tooltip-bob {
+  animation: tooltip-bob 1.6s ease-in-out infinite;
+}
+
+.animate-toast-in {
+  animation: toast-in 180ms ease-out;
+}
+
+.duo-mascot-wrap {
+  filter: drop-shadow(0 8px 0 #2f7416);
+}
+
+.duo-mascot {
+  animation: mascot-bob 2.7s ease-in-out infinite, mascot-tilt 3.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.duo-wing {
+  animation: mascot-wing 1.35s ease-in-out infinite;
+}
+
+.duo-wing-left {
+  transform-origin: 46px 85px;
+}
+
+.duo-wing-right {
+  transform-origin: 174px 85px;
+  animation-direction: reverse;
+}
+
+.duo-eyelid {
+  transform-origin: center;
+  transform: scaleY(0);
+  animation: mascot-blink 4.2s ease-in-out infinite;
+}
+
+.duo-eyelid-right {
+  animation-delay: 60ms;
+}
+
+.lesson-node-active {
+  animation: node-active-bounce 2s ease-in-out infinite;
+}
+
+.lesson-node-completed {
+  animation: node-complete-pop 2.6s ease-in-out infinite;
+}
+
+.lesson-node-check {
+  animation: node-check-pop 2.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
