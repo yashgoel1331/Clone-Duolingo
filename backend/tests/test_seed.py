@@ -76,6 +76,7 @@ def test_seed_creates_complete_course_and_sample_progress(session: Session) -> N
 
     learner = session.scalar(select(User).where(User.username == "learner"))
     assert learner is not None
+    assert learner.display_name == "Yash"
     assert learner.total_xp == 40
     assert learner.current_streak == 7
     assert learner.hearts == 4

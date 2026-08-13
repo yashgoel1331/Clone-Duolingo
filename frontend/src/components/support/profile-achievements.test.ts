@@ -7,7 +7,7 @@ describe("buildProfileAchievements", () => {
     const achievements = buildProfileAchievements({
       id: 1,
       username: "learner",
-      display_name: "Sample Learner",
+      display_name: "Yash",
       avatar_url: null,
       stats: {
         total_xp: 100,
@@ -32,7 +32,7 @@ describe("buildProfileAchievements", () => {
     const achievements = buildProfileAchievements({
       id: 1,
       username: "learner",
-      display_name: "Sample Learner",
+      display_name: "Yash",
       avatar_url: null,
       stats: {
         total_xp: 40,

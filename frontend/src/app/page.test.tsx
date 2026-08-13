@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
 const meResponse = {
   id: 1,
   username: "learner",
-  display_name: "Sample Learner",
+  display_name: "Yash",
   avatar_url: null,
   stats: {
     total_xp: 40,

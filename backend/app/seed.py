@@ -399,7 +399,7 @@ def _get_or_create_users(session: Session, seeded_at: datetime) -> User:
     if default_user is None:
         default_user = User(
             username=DEFAULT_USERNAME,
-            display_name="Sample Learner",
+            display_name="Yash",
             total_xp=40,
             weekly_xp=40,
             daily_xp=20,
@@ -413,6 +413,8 @@ def _get_or_create_users(session: Session, seeded_at: datetime) -> User:
             last_activity_date=seeded_at.date(),
         )
         session.add(default_user)
+    else:
+        default_user.display_name = "Yash"
 
     for user_data in LEADERBOARD_USERS:
         existing_user = session.scalar(

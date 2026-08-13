@@ -63,7 +63,7 @@ def test_learning_hierarchy_and_progress_are_persisted(session: Session) -> None
         target_language="Spanish",
         units=[Unit(position=1, title="Start here", skills=[skill])],
     )
-    user = User(username="learner", display_name="Sample Learner")
+    user = User(username="learner", display_name="Yash")
     user.skill_progress.append(
         UserSkillProgress(
             skill=skill,
