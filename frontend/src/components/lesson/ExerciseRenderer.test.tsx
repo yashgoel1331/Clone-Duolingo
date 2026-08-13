@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { createInitialDraft, draftToAnswer } from "./ExerciseRenderer";
+import { createInitialDraft, draftToAnswer, ExerciseRenderer } from "./ExerciseRenderer";
 
 describe("ExerciseRenderer answer helpers", () => {
   it("creates a fill_blank draft and serializes selected answer", () => {
@@ -35,5 +36,49 @@ describe("ExerciseRenderer answer helpers", () => {
       { left: "hola", right: "hello" },
       { left: "adios", right: "bye" },
     ]);
+  });
+
+  it("updates multiple choice draft through user interaction", () => {
+    const onChange = vi.fn();
+    render(
+      <ExerciseRenderer
+        exercise={{
+          id: 1,
+          position: 1,
+          exercise_type: "multiple_choice",
+          instruction: null,
+          prompt: "Choose",
+          payload: { options: ["hola", "adios"] },
+        }}
+        draft={{ kind: "multiple_choice", selected: null }}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "hola" }));
+    expect(onChange).toHaveBeenCalledWith({ kind: "multiple_choice", selected: "hola" });
+  });
+
+  it("updates type answer draft through input typing", () => {
+    const onChange = vi.fn();
+    render(
+      <ExerciseRenderer
+        exercise={{
+          id: 2,
+          position: 1,
+          exercise_type: "type_answer",
+          instruction: null,
+          prompt: "Translate",
+          payload: { accepted_answers: ["hello"] },
+        }}
+        draft={{ kind: "type_answer", text: "" }}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Type your answer"), {
+      target: { value: "hello" },
+    });
+    expect(onChange).toHaveBeenCalledWith({ kind: "type_answer", text: "hello" });
   });
 });

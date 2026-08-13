@@ -205,7 +205,7 @@ def _record_failed_lesson(
     if progress is None:
         progress = UserLessonProgress(user=user, lesson=lesson)
         session.add(progress)
-    progress.attempts_count += 1
+    progress.attempts_count = (progress.attempts_count or 0) + 1
     progress.last_attempt_at = now
 
 
@@ -306,8 +306,8 @@ def _update_progress(
         lesson_progress = UserLessonProgress(user=user, lesson=lesson)
         session.add(lesson_progress)
     lesson_progress.is_completed = True
-    lesson_progress.best_score = max(lesson_progress.best_score, accuracy)
-    lesson_progress.attempts_count += 1
+    lesson_progress.best_score = max(lesson_progress.best_score or 0, accuracy)
+    lesson_progress.attempts_count = (lesson_progress.attempts_count or 0) + 1
     lesson_progress.completed_at = lesson_progress.completed_at or now
     lesson_progress.last_attempt_at = now
     session.flush()

@@ -67,6 +67,14 @@ def _directions_lesson_id(path_response: dict[str, Any]) -> int:
     raise AssertionError("Directions lesson was not returned by the path API.")
 
 
+def _skill_lessons(path_response: dict[str, Any], skill_title: str) -> list[int]:
+    for unit in path_response["units"]:
+        for skill in unit["skills"]:
+            if skill["title"] == skill_title:
+                return [lesson["id"] for lesson in skill["lessons"]]
+    raise AssertionError(f"{skill_title} lessons were not returned by the path API.")
+
+
 def test_read_apis_return_seeded_learner_path_profile_and_leaderboard(
     api: tuple[TestClient, Session],
 ) -> None:
@@ -212,3 +220,89 @@ def test_locked_lesson_cannot_start(api: tuple[TestClient, Session]) -> None:
 
     assert response.status_code == 409
     assert response.json()["detail"] == "This skill is locked."
+
+
+def test_finishing_a_full_skill_unlocks_the_next_skill(api: tuple[TestClient, Session]) -> None:
+    client, _ = api
+    path = client.get("/api/path").json()
+    food_lessons = _skill_lessons(path, "Food")
+
+    for lesson_id in food_lessons:
+        started = client.post(f"/api/lessons/{lesson_id}/start")
+        assert started.status_code == 200
+        lesson = started.json()
+
+        answers: dict[str, Any] = {
+            "multiple_choice": "Bread",
+            "word_bank": ["Yo", "como", "una", "manzana"],
+            "match_pairs": [
+                {"left": "pan", "right": "bread"},
+                {"left": "agua", "right": "water"},
+                {"left": "manzana", "right": "apple"},
+            ],
+            "fill_blank": "bebo",
+            "type_answer": "i would like bread",
+        }
+        for exercise in lesson["exercises"]:
+            answered = client.post(
+                f"/api/attempts/{lesson['attempt_id']}/answer",
+                json={
+                    "exercise_id": exercise["id"],
+                    "answer": answers[exercise["exercise_type"]],
+                },
+            )
+            assert answered.status_code == 200
+            assert answered.json()["correct"] is True
+
+        completed = client.post(f"/api/attempts/{lesson['attempt_id']}/complete")
+        assert completed.status_code == 200
+
+    updated_path = client.get("/api/path")
+    assert updated_path.status_code == 200
+    statuses = {
+        skill["title"]: skill["status"]
+        for unit in updated_path.json()["units"]
+        for skill in unit["skills"]
+    }
+    assert statuses["Food"] == "completed"
+    assert statuses["Family"] == "available"
+
+
+def test_lesson_completion_adds_xp_across_multiple_lessons(api: tuple[TestClient, Session]) -> None:
+    client, _ = api
+    path = client.get("/api/path").json()
+    food_lessons = _skill_lessons(path, "Food")
+
+    def finish_lesson(lesson_id: int) -> int:
+        started = client.post(f"/api/lessons/{lesson_id}/start")
+        lesson = started.json()
+        answers: dict[str, Any] = {
+            "multiple_choice": "Bread",
+            "word_bank": ["Yo", "como", "una", "manzana"],
+            "match_pairs": [
+                {"left": "pan", "right": "bread"},
+                {"left": "agua", "right": "water"},
+                {"left": "manzana", "right": "apple"},
+            ],
+            "fill_blank": "bebo",
+            "type_answer": "I want bread",
+        }
+        for exercise in lesson["exercises"]:
+            answered = client.post(
+                f"/api/attempts/{lesson['attempt_id']}/answer",
+                json={
+                    "exercise_id": exercise["id"],
+                    "answer": answers[exercise["exercise_type"]],
+                },
+            )
+            assert answered.status_code == 200
+
+        completed = client.post(f"/api/attempts/{lesson['attempt_id']}/complete")
+        assert completed.status_code == 200
+        return completed.json()["total_xp"]
+
+    first_total = finish_lesson(food_lessons[0])
+    second_total = finish_lesson(food_lessons[1])
+
+    assert first_total == 60
+    assert second_total == 80
