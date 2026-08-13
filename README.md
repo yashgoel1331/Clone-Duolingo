@@ -1,34 +1,95 @@
-# Duolingo Clone
+# Duolingo Clone (Assignment Submission)
 
-A full-stack implementation of the core Duolingo lesson and gamification experience. The project
-uses a Next.js TypeScript frontend and a FastAPI/SQLAlchemy backend backed by SQLite.
+A full-stack Duolingo-style learning app built with:
+
+- `frontend/`: Next.js 16 App Router + TypeScript + Tailwind v4
+- `backend/`: FastAPI + SQLAlchemy + Alembic + SQLite
+
+The implementation focuses on the assignment's core vertical slice: learning path, lesson player,
+XP/hearts/streak rules, profile, leaderboard, and supporting pages with Duolingo-like styling.
+
+## Stack and architecture
+
+### Frontend
+
+- Next.js App Router (`frontend/src/app`)
+- Shared UI primitives under `frontend/src/components/ui`
+- Layout shell under `frontend/src/components/layout`
+- Learn path and lesson experience under:
+  - `frontend/src/components/learn`
+  - `frontend/src/components/lesson`
+- API client and contracts under `frontend/src/lib/api`
+
+### Backend
+
+- FastAPI app entry: `backend/app/main.py`
+- API routing: `backend/app/api/routes`
+- Business logic: `backend/app/services`
+- Models: `backend/app/models`
+- Schemas: `backend/app/schemas`
+- Migrations: `backend/alembic`
+
+### Data flow (high level)
+
+1. Frontend calls FastAPI (`/api/*`) via `frontend/src/lib/api/client.ts`.
+2. FastAPI loads the seeded user through a centralized dependency.
+3. Services apply game rules (hearts, streaks, XP, unlocks, idempotent completion).
+4. SQLite persists content and progress.
+
+### Architecture diagram
+
+```mermaid
+flowchart LR
+    A[Next.js Frontend] -->|REST /api| B[FastAPI Router]
+    B --> C[Service Layer]
+    C --> D[(SQLite)]
+    C --> E[XP Hearts Streak Unlock Rules]
+```
 
 ## Repository layout
 
-- `frontend/` — Next.js App Router, TypeScript, Tailwind CSS
-- `backend/` — FastAPI, SQLAlchemy, Alembic, SQLite
+```text
+.
+├── backend/
+│   ├── alembic/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   └── tests/
+├── frontend/
+│   ├── e2e/
+│   └── src/
+│       ├── app/
+│       ├── components/
+│       └── lib/
+├── .env.example
+└── package.json
+```
 
 ## Prerequisites
 
-- Node.js 22+ and npm
+- Node.js 22+
+- npm
 - Python 3.12+
 
-## Setup
+## Local setup
 
-Copy the example environment file:
+1) Copy environment values:
 
 ```bash
 cp .env.example .env
 ```
 
-Install the frontend:
+2) Install frontend deps:
 
 ```bash
 cd frontend
 npm install
 ```
 
-Install the backend:
+3) Install backend deps:
 
 ```bash
 cd backend
@@ -37,143 +98,188 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Development
-
-From the repository root, run each service in a separate terminal:
-
-```bash
-npm run dev:frontend
-npm run dev:backend
-```
-
-- Frontend: http://localhost:3000
-- API health check: http://localhost:8000/api/health
-- Interactive API docs: http://localhost:8000/api/docs
-
-## Quality checks
-
-```bash
-npm run lint:frontend
-npm run test:frontend
-npm run build:frontend
-npm run test:backend
-backend/.venv/bin/ruff check backend
-```
-
-## Database migrations
-
-Run Alembic commands from `backend/`:
-
-```bash
-.venv/bin/alembic upgrade head
-.venv/bin/alembic current
-```
-
-Create a migration after changing the SQLAlchemy models:
-
-```bash
-.venv/bin/alembic revision --autogenerate -m "describe change"
-```
-
-## Seed data
-
-After applying migrations, seed the demo course from the repository root:
+4) Run migrations and seed data from repo root:
 
 ```bash
 npm run migrate:backend
 npm run seed:backend
 ```
 
-The seed command is safe to rerun; it checks stable course slugs and usernames before inserting
-anything. It creates:
+## Run in development
 
-- One Spanish-for-English course with 3 units, 6 skills, 6 lessons, and 30 exercises.
-- One Spanish-for-English course with 4 units, 8 skills, 16 lessons, and 80 exercises.
-- Six users: the default `learner` plus five users for the leaderboard.
-- Sixteen examples of every required exercise type.
-- Completed, available, partially progressed, and locked skill states for `learner`.
-- Four completed lesson attempts and one abandoned attempt for profile and progress testing.
+Run each service in separate terminals from repo root:
 
-The default learner starts with 40 XP, a 7-day streak, 4 of 5 hearts, 500 gems, and a completed
-20-XP daily goal.
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
 
-## API overview
+- Frontend: http://localhost:3000
+- API docs: http://localhost:8000/api/docs
+- API health: http://localhost:8000/api/health
 
-The MVP assumes the seeded `learner` is logged in. That decision is isolated in
-`app/api/dependencies.py`, so real authentication can replace it later.
+## Environment variables
 
-- `GET /api/me` — identity and top-bar XP, streak, hearts, gems, and daily goal stats.
-- `GET /api/me/profile` — learner stats plus completed skills, lessons, and attempt count.
-- `GET /api/path` — the ordered course tree with completed, available, and locked skill states.
-- `POST /api/lessons/{lesson_id}/start` — start or resume one active lesson attempt.
-- `POST /api/attempts/{attempt_id}/answer` — validate the next answer and immediately return
-  feedback; wrong answers remove one heart.
-- `POST /api/attempts/{attempt_id}/complete` — award XP, update streak/progress, and unlock the
-  next skill. Repeating this request does not award XP twice.
-- `GET /api/leaderboard` — users ranked by weekly XP.
-- `POST /api/hearts/refill` — refills hearts and deducts 50 gems on every use.
+Defined in `.env.example`:
 
-Lesson-start responses expose only the information needed to render exercises. Canonical answers
-and matching pairs remain server-side until feedback is returned. Exercises must be submitted in
-their stored order. Hearts regenerate lazily every four hours when learner stats are read.
+- `NEXT_PUBLIC_API_URL`: frontend API base URL
+- `DATABASE_URL`: SQLAlchemy DB URL
+- `BACKEND_CORS_ORIGINS`: allowed frontend origins
+- `DEFAULT_USERNAME`: mocked logged-in username
+- `DEFAULT_COURSE_SLUG`: path course slug
+- `HEART_REGEN_MINUTES`: lazy heart regeneration interval
 
-Run the backend and explore all request/response contracts at http://localhost:8000/api/docs.
+## Database schema (ER overview)
 
-## Database schema
-
-Course content follows an ordered hierarchy:
+Core content hierarchy:
 
 ```text
 Course -> Unit -> Skill -> Lesson -> Exercise
 ```
 
-- `users` stores the learner profile and persistent XP, daily goal, gems, hearts, and streak data.
-  Gems are seeded values and are only spent (not earned) in this MVP.
-- `courses`, `units`, `skills`, and `lessons` define the ordered learning path.
-- `exercises` stores the prompt, exercise type, and a type-specific JSON payload.
-- `user_skill_progress` stores each skill's lock state, completion percentage, and crowns.
-- `user_lesson_progress` stores completion, best score, and attempt totals per learner and lesson.
-- `lesson_attempts` records an active or finished lesson session, answers, hearts lost, and XP earned.
+Progress and attempts:
 
-Position values are unique within their parent, such as a unit's position inside a course. User
-progress is unique for each user/skill or user/lesson pair. Check constraints prevent invalid
-values such as negative XP, more hearts than the configured maximum, or progress above 100%.
-Deleting content cascades to its descendants and associated progress records.
-
-## Exercise payload contract
-
-The `exercise_type` determines the shape of the `payload` JSON. The seed and API layers must
-validate these shapes before saving or returning content.
-
-```json
-{
-  "multiple_choice": {
-    "options": ["Hello", "Goodbye", "Thanks"],
-    "answer": "Hello"
-  },
-  "word_bank": {
-    "tokens": ["I", "eat", "apples"],
-    "answer": ["I", "eat", "apples"]
-  },
-  "match_pairs": {
-    "pairs": [
-      {"left": "hola", "right": "hello"},
-      {"left": "adiós", "right": "goodbye"}
-    ]
-  },
-  "fill_blank": {
-    "sentence": "Yo ___ agua",
-    "options": ["bebo", "como", "leo"],
-    "answer": "bebo"
-  },
-  "type_answer": {
-    "accepted_answers": ["good morning", "morning"],
-    "case_sensitive": false
-  }
-}
+```text
+User -> UserSkillProgress
+User -> UserLessonProgress
+User -> LessonAttempt -> Lesson
 ```
 
-Canonical answers stay in the database but must be removed from lesson-start API responses. The
-backend will validate submitted answers and return feedback separately.
+Important constraints/rules:
 
-The API surface and deployment guide will be documented as those features are implemented.
+- Ordered uniqueness (for example: unit position inside a course, lesson position inside a skill)
+- Per-user uniqueness for skill progress and lesson progress
+- Check constraints for XP/hearts/progress bounds
+- Cascading deletes from content to child entities/progress
+
+## Seeded content and account
+
+The seed is idempotent and creates:
+
+- 1 course (`spanish-for-english`)
+- 4 units, 8 skills, 16 lessons, 80 exercises
+- 5 exercise types distributed across lessons
+- 6 users total (default learner + leaderboard users)
+- mixed progress states (completed/available/locked) for immediate UI coverage
+
+Default learner baseline:
+
+- username: `learner`
+- hearts: `4/5`
+- gems: `500`
+- total XP: `40`
+- current streak: `7`
+- daily goal: `20` (already reached in seed state)
+
+## API overview
+
+All endpoints are prefixed with `/api`.
+
+- `GET /me` — current learner + top stats
+- `GET /me/profile` — profile stats (longest streak, completions, attempts)
+- `GET /path` — ordered units/skills/lessons + statuses
+- `POST /lessons/{lesson_id}/start` — start or resume active attempt
+- `POST /attempts/{attempt_id}/answer` — validate answer in strict lesson order
+- `POST /attempts/{attempt_id}/complete` — finalize attempt; award XP/unlock/streak updates (idempotent)
+- `GET /leaderboard` — weekly XP ranking
+- `POST /hearts/refill` — mock practice refill (costs gems)
+
+Security/data note:
+
+- Lesson start payloads exclude canonical answers.
+- Validation happens server-side at answer submission.
+
+### Endpoint verification snapshot
+
+Verified against backend route definitions (`backend/app/api/routes`) and app-level health route
+(`backend/app/main.py`):
+
+- `GET /api/me`
+- `GET /api/me/profile`
+- `GET /api/path`
+- `POST /api/lessons/{lesson_id}/start`
+- `POST /api/attempts/{attempt_id}/answer`
+- `POST /api/attempts/{attempt_id}/complete`
+- `GET /api/leaderboard`
+- `POST /api/hearts/refill`
+- `GET /api/health`
+
+## Lesson exercise payload contract
+
+`exercise.payload` is typed by `exercise_type`.
+
+- `multiple_choice`: `options`, `answer`
+- `word_bank`: `tokens`, `answer[]`
+- `match_pairs`: `pairs[]`
+- `fill_blank`: `sentence`, `options`, `answer`
+- `type_answer`: `accepted_answers[]`, `case_sensitive`
+
+## Test commands
+
+From repo root:
+
+```bash
+npm run test:backend
+npm run lint:frontend
+npm run test:frontend
+npm run build:frontend
+```
+
+Optional E2E (requires app running and Playwright browsers installed):
+
+```bash
+npm run test:e2e:frontend
+```
+
+## Assumptions and trade-offs
+
+- Authentication is mocked to one seeded user for MVP speed.
+- Gems economy is intentionally simplified (spend-only in current scope).
+- Social/subscription/multi-language are placeholders.
+- SQLite is used for assignment simplicity and portability.
+
+## Deployment guide (Step 10)
+
+### Frontend (Vercel)
+
+1. Import repository in Vercel.
+2. Set root directory to `frontend`.
+3. Set env:
+   - `NEXT_PUBLIC_API_URL=<public-backend-url>/api`
+4. Deploy.
+
+### Backend (Railway)
+
+1. Deploy `backend` as a Python web service.
+2. Set root directory to `backend`.
+3. Start command:
+   - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. Add persistent volume and mount it at `/data`.
+5. Set `DATABASE_URL=sqlite:////data/duolingo.db`.
+6. Configure remaining env vars from `.env.example`.
+7. In Railway Console, run migrations and seed once:
+   - `alembic upgrade head`
+   - `python -m app.seed`
+
+### Production checklist
+
+- Configure CORS to include frontend domain
+- Verify `/api/health` and `/api/docs`
+- Verify Learn -> Lesson -> Complete flow
+- Verify profile and leaderboard load
+- Verify heart refill and gem deduction
+
+## Manual verification log
+
+Step 10 manual checks were completed against the current repository state:
+
+- Setup steps in this README align with executable root scripts.
+- API endpoint list matches backend route modules and app-level health route.
+- Seed counts match `backend/app/seed.py` constants (`4/8/16/80`).
+- Deploy section includes frontend API env, backend env/CORS, and SQLite persistence guidance.
+
+## Submission URLs
+
+- Repository URL: `https://github.com/yashgoel1331/Clone-Duolingo`
+- Live frontend URL: `https://frontend-six-alpha-86.vercel.app`
+- Live backend URL: `https://clone-duolingo-backend-production.up.railway.app`

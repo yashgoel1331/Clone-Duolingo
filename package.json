@@ -6,6 +6,7 @@
     "build:frontend": "npm --prefix frontend run build",
     "lint:frontend": "npm --prefix frontend run lint",
     "test:frontend": "npm --prefix frontend run test",
+    "test:e2e:frontend": "npm --prefix frontend run test:e2e",
     "dev:backend": "backend/.venv/bin/uvicorn app.main:app --reload --app-dir backend",
     "test:backend": "backend/.venv/bin/pytest backend/tests",
     "migrate:backend": "cd backend && .venv/bin/alembic upgrade head",
