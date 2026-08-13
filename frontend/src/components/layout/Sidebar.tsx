@@ -9,9 +9,8 @@ import {
   Store,
   UserCircle,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/cn";
 
@@ -45,19 +44,24 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[176px] shrink-0 flex-col border-r-2 border-border/90 bg-bg px-3 py-5 lg:flex xl:w-[186px]">
-      <Link href="/" className="mb-6 inline-flex px-2" aria-label="Duolingo learn home">
-        <Image
-          src="/duolingo-logo.png"
-          alt="Duolingo logo"
-          width={192}
-          height={85}
-          priority
-          className="h-auto w-[104px] xl:w-[112px]"
-        />
-      </Link>
+      <button
+        type="button"
+        aria-label="Duolingo learn home"
+        className="mb-6 inline-flex px-2"
+        onClick={() => {
+          if (pathname !== "/") {
+            router.push("/");
+            return;
+          }
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
+        <span className="text-[39px] font-black leading-none tracking-[-1.2px] text-green">duolingo</span>
+      </button>
 
       <nav aria-label="Primary navigation" className="flex flex-col gap-1.5">
         {navigation.map(({ label, href, icon: Icon, color, available }) => {
@@ -90,13 +94,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="mt-auto rounded-2xl border-2 border-border bg-card px-3 py-2.5">
-        <p className="text-xs font-black uppercase tracking-[1px] text-text-muted">Step 6 note</p>
-        <p className="mt-1 text-[12px] font-extrabold leading-4 text-[#c8d8de]">
-          Practice, leagues, and shop stay read-only until backend routes are connected.
-        </p>
-      </div>
     </aside>
   );
 }

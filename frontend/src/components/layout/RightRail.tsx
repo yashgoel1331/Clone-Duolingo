@@ -116,21 +116,6 @@ export function RightRail({
           </Button>
         </Card>
 
-        <Card className="hidden overflow-hidden bg-[#123b3d] xl:block">
-          <div className="-m-4 bg-[radial-gradient(circle_at_90%_10%,rgba(28,176,246,0.25),transparent_40%)] p-5">
-            <p className="text-xs font-black uppercase tracking-widest text-[#77e8d7]">
-              Focus without interruptions
-            </p>
-            <h2 className="mt-2 text-xl font-black text-text">Remove ads with Super</h2>
-            <p className="mt-2 text-sm font-bold leading-5 text-[#9bc8c7]">
-              Keep your learning path clear and distraction-free.
-            </p>
-            <p className="mt-3 text-xs font-black uppercase tracking-wide text-[#9bc8c7]">
-              Placeholder ad card
-            </p>
-          </div>
-        </Card>
-
         <footer className="hidden flex-wrap gap-x-3 gap-y-2 px-3 py-3 text-[10px] font-black uppercase tracking-wide text-text-muted md:flex">
           {["About", "Blog", "Store", "Efficacy", "Careers", "Investors", "Terms", "Privacy"].map(
             (item) => (

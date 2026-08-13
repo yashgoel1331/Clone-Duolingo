@@ -125,26 +125,33 @@ function PathNode({
           <span className="absolute left-1/2 top-full -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-text" />
         </div>
       ) : null}
-      <button
-        type="button"
-        aria-label={label}
-        onClick={() => {
-          void onSelect();
-        }}
+      <div
         className={cn(
-          "group relative z-10 flex h-[66px] w-[66px] items-center justify-center rounded-full text-white transition-[transform,box-shadow,filter] duration-150 hover:-translate-y-1 hover:brightness-110 active:translate-y-1 active:shadow-none md:h-[72px] md:w-[72px]",
-          isLocked
-            ? cn(
-                "border-2 bg-locked text-locked-icon shadow-[0_7px_0_#2b3940]",
-                toneStyle.lockedBorder,
-              )
-            : state === "active"
-              ? cn("lesson-node-active ring-8", toneStyle.active)
-              : cn("lesson-node-completed", toneStyle.completed),
+          "relative z-10 flex h-[82px] w-[82px] items-center justify-center rounded-full border-2 bg-[#19262d] shadow-[0_5px_0_#111a1f] md:h-[88px] md:w-[88px]",
+          state === "active" ? "border-[#445560]" : "border-[#3a4953]",
         )}
       >
-        <span className="pointer-events-none">{icon}</span>
-      </button>
+        <button
+          type="button"
+          aria-label={label}
+          onClick={() => {
+            void onSelect();
+          }}
+          className={cn(
+            "group relative z-10 flex h-[62px] w-[62px] items-center justify-center rounded-full text-white transition-[transform,box-shadow,filter] duration-150 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-1 active:shadow-none md:h-[68px] md:w-[68px]",
+            isLocked
+              ? cn(
+                  "border-2 bg-locked text-locked-icon shadow-[0_6px_0_#2b3940]",
+                  toneStyle.lockedBorder,
+                )
+              : state === "active"
+                ? cn("lesson-node-active", toneStyle.active)
+                : cn("lesson-node-completed", toneStyle.completed),
+          )}
+        >
+          <span className="pointer-events-none">{icon}</span>
+        </button>
+      </div>
     </div>
   );
 }
