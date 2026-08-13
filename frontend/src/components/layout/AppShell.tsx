@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { UserStats } from "@/lib/api/types";
 
 import { BottomNav } from "./BottomNav";
+import { AppFooter } from "./AppFooter";
 import { RightRail } from "./RightRail";
 import { Sidebar } from "./Sidebar";
 import { TopStats } from "@/components/layout/TopStats";
@@ -51,6 +52,7 @@ export function AppShell({
               refillingHearts={refillingHearts}
             />
           </div>
+          <AppFooter />
         </div>
       </div>
       <BottomNav />

@@ -116,15 +116,6 @@ export function RightRail({
           </Button>
         </Card>
 
-        <footer className="hidden flex-wrap gap-x-3 gap-y-2 px-3 py-3 text-[10px] font-black uppercase tracking-wide text-text-muted md:flex">
-          {["About", "Blog", "Store", "Efficacy", "Careers", "Investors", "Terms", "Privacy"].map(
-            (item) => (
-              <span key={item} className="cursor-default">
-                {item}
-              </span>
-            ),
-          )}
-        </footer>
       </div>
     </aside>
   );
